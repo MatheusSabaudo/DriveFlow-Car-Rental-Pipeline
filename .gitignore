@@ -16,3 +16,5 @@ crash.*.log
 # CLI config
 .terraformrc
 terraform.rc
+
+.DS_Store
