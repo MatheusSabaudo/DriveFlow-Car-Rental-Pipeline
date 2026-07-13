@@ -1,6 +1,3 @@
-# Root inputs. Defaults match the bootstrap so class-a works out of the box;
-# override per-run via class-a.tfvars.
-
 variable "aws_profile" {
     description = "AWS CLI profile to use for authentication"
     type        = string
