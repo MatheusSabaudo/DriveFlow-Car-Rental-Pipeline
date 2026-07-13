@@ -15,3 +15,38 @@ variable "environment" {
     type        = string
     default     = "class-a"
 }
+
+variable "ip_cidr" {
+    description = "CIDR block for the VPC"
+    type        = string
+}
+
+variable "budget_email" {
+    description = "Email address for budget alerts"
+    type        = string
+    default     = "matheus.sabaudo@corley.it"
+}
+
+variable "enable_rds" {
+    description = "Whether to enable RDS resources"
+    type        = bool
+    default     = false
+}
+
+variable "enable_redshift" {
+    description = "Whether to enable Redshift resources"
+    type        = bool
+    default     = false
+}
+
+variable "enable_emr" {
+    description = "Whether to enable EMR resources"
+    type        = bool
+    default     = false
+}
+
+variable "enable_mwaa" {
+    description = "Whether to enable MWAA resources"
+    type        = bool
+    default     = false
+}
