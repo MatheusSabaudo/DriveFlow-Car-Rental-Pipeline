@@ -1,0 +1,18 @@
+# state — NEVER commit (may contain secrets in plaintext)
+*.tfstate
+*.tfstate.*
+
+# local terraform dirs & plans
+.terraform/
+*.tfplan
+crash.log
+crash.*.log
+
+# variable VALUES (commit a .example instead)
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# CLI config
+.terraformrc
+terraform.rc
