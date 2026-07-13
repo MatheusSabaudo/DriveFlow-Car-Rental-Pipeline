@@ -2,6 +2,10 @@
 *.tfstate
 *.tfstate.*
 
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.*.backup
+
 # local terraform dirs & plans
 .terraform/
 *.tfplan
