@@ -1,8 +1,10 @@
 # DriveFlow — Car Rental Data Platform
 
-> A production-shaped, **cost-capped ($50/mo)**, **fully ephemeral** data platform for a fictional car-rental company — built entirely on **real AWS** (no LocalStack, no emulators) and provisioned end-to-end with **modular Terraform**.
->
-> Every environment stands up with one `terraform apply` and tears down to **zero billable resources** with one `terraform destroy`. The whole point: demonstrate senior data-engineering judgment — idempotency, cost control, IaC discipline, and warehouse trade-offs — not just "it runs."
+**DriveFlow is an end-to-end data pipeline for a fictional car-rental company, built to learn the core AWS data-engineering stack hands-on — on real AWS, not emulators.**
+
+The project simulates a rental business (a fleet of vehicles, rentals across branches, customers, and odometer telemetry), then runs that data through the full lifecycle a real data team owns: **generate → ingest → clean → model into KPIs → load into a warehouse → visualize**. Each stage is deliberately built on a different AWS service so that, by the end, I've used every important building block of an AWS data platform for a real reason — not from a tutorial.
+
+It's a personal learning project. The data is fake (Faker-generated); the AWS services, the pipeline, and the engineering practices are real.
 
 <p align="left">
   <img alt="Terraform" src="https://img.shields.io/badge/IaC-Terraform%20%E2%89%A51.10-7B42BC">
@@ -10,94 +12,77 @@
   <img alt="Spark" src="https://img.shields.io/badge/Compute-Glue%20%2F%20Spark%203.5-E25A1C">
   <img alt="Orchestration" src="https://img.shields.io/badge/Orchestration-Step%20Functions%20%2B%20MWAA-CC2264">
   <img alt="Budget" src="https://img.shields.io/badge/Monthly%20cost-%3C%20%2450-2E7D32">
-  <img alt="State" src="https://img.shields.io/badge/State-S3%20%2B%20native%20lockfile-232F3E">
 </p>
 
 ---
 
-## Why this project exists
+## The goal: learn AWS data engineering, service by service
 
-Most portfolio pipelines cheat in one of two ways: they run locally (so none of the real cloud complexity shows up), or they leave expensive infrastructure running (so nobody can actually reproduce them). DriveFlow refuses both.
+I'm using this project to get real, hands-on experience with the services that make up a modern AWS data platform. Rather than read about each one in isolation, I'm wiring them together into a single pipeline so I understand *how they connect* and *when to reach for which*.
 
-It is a **real-AWS, deploy-test-destroy** platform that models the same pipeline **three different ways** — serverless, scale-out, and production-hardened — over one shared codebase, so the interesting engineering lives in the *decisions*, not the plumbing:
-
-- **Idempotency by construction** — per-day partitions + delete-then-insert loads mean any run is safely repeatable and backfillable.
-- **Cost as a first-class constraint** — an architecture deliberately engineered to avoid the silent budget-killers (NAT gateways, idle MWAA, un-paused Redshift).
-- **IaC as the only source of truth** — remote state with native S3 locking, reusable modules, pinned providers, and automated quality gates (`fmt` / `tflint` / `tfsec` / `terraform-docs`).
-- **Warehouse literacy** — the same curated data lands in a row store, a columnar MPP warehouse, and an open lakehouse, so the trade-offs are shown, not asserted.
-
----
-
-## Architecture
-
-```mermaid
-flowchart LR
-    subgraph SRC["Operational source"]
-        RDS[(RDS Postgres<br/>ops schema)]
-    end
-    subgraph LAKE["S3 data lake"]
-        RAW[RAW<br/>Parquet]
-        CLN[CLEANSED<br/>Parquet]
-        CUR[CURATED<br/>Parquet]
-    end
-    subgraph WH["Warehouse targets"]
-        ANL[(RDS analytics<br/>row store)]
-        RS[(Redshift<br/>columnar MPP)]
-        ICE[Iceberg + Athena<br/>open lakehouse]
-    end
-
-    GEN[generate.py<br/>Faker + intentional dirt] --> RDS
-    RDS -->|"delta extract<br/>watermark on updated_at"| RAW
-    RAW -->|"clean.py — Spark<br/>dedupe · validate · repair"| CLN
-    CLN -->|"kpi.py — Spark<br/>business metrics"| CUR
-    CUR --> ANL
-    CUR --> RS
-    CUR --> ICE
-    BI[BI / QuickSight · Metabase] --> ANL
-    BI --> ICE
-```
-
-**Orchestration** — a Step Functions state machine runs `Generate → ExtractDelta → Clean → KPI → Load` as the day-to-day driver (serverless, ~$0, console-triggerable). The **identical** logical DAG is re-implemented in **Airflow/MWAA** as a time-boxed study exercise to compare schedulers — MWAA is never left running.
-
-```mermaid
-flowchart LR
-    A[Generate] --> B[ExtractDelta] --> C[Clean] --> D[KPI] --> E[Load]
-    style A fill:#CC2264,color:#fff
-    style E fill:#2E7D32,color:#fff
-```
+| AWS service | Role in DriveFlow | What I'm learning |
+|---|---|---|
+| **S3** | Data lake — RAW / CLEANSED / CURATED / scripts zones | Partitioning, lifecycle, the zone/medallion pattern |
+| **RDS (Postgres)** | Operational source (`ops`) + analytics target (`analytics`) | OLTP modeling, `COPY`/JDBC vs. driver loads, security groups |
+| **AWS Glue** | Spark ETL (clean, KPI) + Python-shell jobs (generate, extract, load) | Serverless Spark, job types, DPU cost, Glue Data Catalog |
+| **Step Functions** | Primary orchestrator of the pipeline | Serverless orchestration, state machines (ASL), service integrations |
+| **Amazon MWAA / Airflow** | The same pipeline re-built to compare schedulers | DAGs, operators, backfills — and why not to leave it running |
+| **Redshift Serverless** | Columnar MPP warehouse option | Distribution/sort keys, `COPY FROM S3`, MPP vs. row store |
+| **Athena + Apache Iceberg** | Open-lakehouse query option | MERGE, time-travel, schema evolution, query-in-place |
+| **EMR (Serverless / EC2)** | Scale-out Spark alternative to Glue | Cluster sizing, spot, YARN — and the Glue vs. EMR trade-off |
+| **IAM** | Least-privilege roles for Glue + Step Functions | Scoping permissions to exactly what each job needs |
+| **AWS Budgets + SNS** | $50 budget with tiered alerts | Cost monitoring and guardrails from day one |
+| **Terraform** | Provisions *everything* | Modules, remote state, provider pinning, quality gates |
 
 ---
 
-## The three delivery classes
+## What the pipeline actually does
 
-The same job code and the same Terraform modules power all three; only the compute / orchestration / warehouse tier changes. Expensive tiers are `count`-gated behind boolean toggles and default **off**.
+```mermaid
+flowchart LR
+    GEN[generate.py<br/>Faker → fleet, rentals,<br/>customers, odometer] --> RDS[(RDS Postgres<br/>ops schema)]
+    RDS -->|delta extract<br/>watermark on updated_at| RAW[S3 RAW]
+    RAW -->|clean.py Spark<br/>dedupe · validate · repair| CLN[S3 CLEANSED]
+    CLN -->|kpi.py Spark<br/>business metrics| CUR[S3 CURATED]
+    CUR --> ANL[(RDS analytics)]
+    CUR --> RS[(Redshift)]
+    CUR --> ICE[Iceberg + Athena]
+    ANL --> BI[BI dashboard]
+```
+
+1. **Generate** — a Faker-based generator writes one "business day" of operational data into RDS: vehicles, branches, customers, rentals, and odometer readings. It intentionally injects realistic mess — duplicate rentals, open rentals with null return dates, negative/decreasing odometer values, out-of-range fuel levels, malformed emails, and future dates — so the cleaning stage has something real to fix.
+2. **Extract (delta)** — a watermark on `updated_at` pulls only new/changed rows since the last run into the S3 RAW zone as partitioned Parquet. Idempotent, so reruns and backfills never duplicate.
+3. **Clean** — a Spark job dedupes on business keys, validates emails and dates, flags open rentals, drops negative odometer readings and enforces monotonic-increasing distance per vehicle, and nulls out-of-range fuel levels — writing a small data-quality report and failing the run if error rates exceed a threshold.
+4. **KPIs** — a second Spark job turns cleansed data into the metrics a rental business actually cares about: **fleet utilization, revenue by branch and category, average km per rental, average rental duration, open-rental rate, and revenue per vehicle** — written to the CURATED zone.
+5. **Load** — curated KPIs land in the RDS `analytics` schema (and, as learning exercises, in Redshift and in an Iceberg/Athena lakehouse) via idempotent delete-then-insert.
+6. **Visualize** — a BI layer (QuickSight or Metabase) over the analytics schema: a vehicle-search view and a KPI dashboard.
+
+The whole chain is run by a **Step Functions** state machine (`Generate → ExtractDelta → Clean → KPI → Load`), triggerable from the console with a `{"run_date": "..."}` input.
+
+---
+
+## How I'm building it: three passes over the same pipeline
+
+To learn the *trade-offs* between services, the same job code and Terraform modules are deployed three ways — only the compute / orchestration / warehouse tier changes.
 
 | | **Class A — MVP** | **Class B — Scale** | **Class C — Production** |
 |---|---|---|---|
-| **Theme** | Serverless-first | Heavy processing | Hardened + DR |
-| **Compute** | Glue (Spark + Python-shell) | EMR Serverless / EMR-on-EC2 | Class B, hardened |
-| **Orchestration** | **Step Functions** | MWAA / Airflow (rehearsal) | CI/CD promoted |
-| **Warehouse** | RDS `analytics` + Iceberg/Athena | Redshift Serverless | Multi-AZ + snapshots |
-| **State root** | `envs/class-a` | `envs/class-b` | `envs/prod` |
-| **Cost posture** | ~$10–15/mo routine | ephemeral bursts (~$5 each) | validated briefly / simulated |
+| Compute | Glue (Spark + Python-shell) | EMR Serverless / on-EC2 | hardened Class B |
+| Orchestration | **Step Functions** | MWAA / Airflow (rehearsal) | CI/CD promoted |
+| Warehouse | RDS `analytics` + Iceberg/Athena | Redshift Serverless | Multi-AZ + snapshots |
+| Goal | prove the pipeline works | learn scale-out + MPP | learn DR + hardening |
 
-> **Class A is the MVP — green end-to-end before B or C is touched.** B and C are learning/stretch tiers built ephemerally.
+**Class A is the target MVP** — everything green end-to-end before B or C. B and C are stretch/learning tiers, built ephemerally.
 
 ---
 
-## Engineering decisions worth interviewing on
+## Guardrails I set for myself
 
-**No NAT gateway — on purpose.** The warehouse load runs as a Glue **Python-shell + `psycopg2`** job *outside* the VPC, hitting a locked-down publicly-accessible RDS (security group scoped to a single IP). This sidesteps a Glue VPC Connection + NAT gateway (~$32/mo) that would, by itself, blow the $50 budget. The Spark-JDBC alternative was evaluated and deliberately rejected for this reason.
-
-**Idempotency everywhere.** Data is partitioned by `dt={run_date}` and written with overwrite-by-partition; warehouse loads use delete-then-insert per partition. Reruns and multi-day backfills produce zero duplicates — validated with a backfill drill.
-
-**Data quality is enforced, not hoped for.** The generator injects realistic dirt — duplicate rentals, null returns, negative/decreasing odometer readings, out-of-range fuel levels, malformed emails, future dates. The cleansing job repairs each, and a **DQ gate fails the run** when null/dup rates exceed thresholds. Failing loudly is the senior behavior.
-
-**Remote state, done right.** State lives in a versioned, encrypted, public-access-blocked S3 bucket with **native S3 locking** (`use_lockfile`, Terraform ≥1.10) — no DynamoDB table to provision or pay for. A one-time `global/bootstrap` root (the only local-state exception) creates the bucket; every env root consumes it under its own state key.
-
-**Cost guardrails first.** A $50 AWS Budget with alerts at $20/$35/$45 is created *before* anything else; `default_tags` stamp every resource with `Project=driveflow` for budget filtering and one-command cleanup; every session ends with `terraform destroy` → `state list` confirmed empty.
-
-**Warehouse comparison, not warehouse religion.** The same curated Parquet feeds **RDS (row)**, **Redshift Serverless (columnar MPP)**, and **Iceberg + Athena (open lakehouse)** — three loading patterns (`INSERT`, `COPY … FORMAT AS PARQUET`, `MERGE`/time-travel) evaluated side by side.
+- **Real AWS, never local.** No LocalStack, no Docker Spark — iterate on tiny samples against real managed services so what I learn actually transfers.
+- **Ephemeral & under $50/mo.** One `terraform apply` to stand up, test, then `terraform destroy` the same session; every run ends with `terraform state list` confirmed empty. A $50 AWS Budget with alerts at $20/$35/$45 exists before anything else.
+- **No accidental cost sinks.** The warehouse load runs as a Glue **Python-shell + `psycopg2`** job outside the VPC against a locked-down public RDS — deliberately avoiding a NAT gateway (~$32/mo, alone enough to break the budget). Expensive services (MWAA, Redshift, EMR) are toggle-gated and default **off**.
+- **Idempotency by default.** Per-day partitions + overwrite-by-partition + delete-then-insert loads → safe reruns and backfills.
+- **Everything in Terraform.** Reusable modules, isolated remote state per environment (S3 + native lockfile, no DynamoDB), pinned providers, and quality gates (`fmt`, `tflint`, `tfsec`/`checkov`, `terraform-docs`).
 
 ---
 
@@ -105,58 +90,40 @@ The same job code and the same Terraform modules power all three; only the compu
 
 ```
 DriveFlow-Car-Rental-Pipeline/
-├── global/
-│   └── bootstrap/          # one-time: creates the S3 remote-state bucket (local state)
-├── modules/                # reusable, environment-agnostic building blocks
-│   ├── s3/                 # raw / cleansed / curated / scripts buckets
-│   ├── iam_roles/          # least-privilege Glue + Step Functions roles
-│   ├── glue/               # generic job module (glueetl | pythonshell), reused via for_each
-│   ├── step_functions/     # ASL state machine: generate → … → load
-│   ├── rds/                # db.t3.micro Postgres, SG locked to one IP
-│   ├── redshift/           # Redshift Serverless (toggle-gated)
-│   ├── emr/                # EMR Serverless / on-EC2 (toggle-gated)
-│   ├── mwaa/               # Airflow env (toggle-gated, cost-warned)
-│   └── budget/             # AWS Budgets + SNS alerts
-├── envs/                   # thin roots — one per delivery class, isolated state
-│   ├── class-a/            # MVP: backend.tf · providers.tf · versions.tf · variables.tf
-│   ├── class-b/
-│   └── class-c/
+├── global/bootstrap/       # one-time: creates the S3 remote-state bucket (local state)
+├── modules/                # reusable building blocks (s3, iam_roles, glue, step_functions,
+│                           #   rds, redshift, emr, mwaa, budget)
+├── envs/                   # thin roots, one per class (class-a / class-b / class-c), isolated state
 ├── jobs/                   # generate · extract_delta · clean · kpi · load_warehouse
 ├── include/sql/            # ddl_ops.sql · ddl_analytics.sql
 └── dags/                   # Airflow DAGs (Class B rehearsal only)
 ```
 
-**Module contract** — every module exposes the same files: `main.tf`, `variables.tf` (typed + validated), `outputs.tf`, `versions.tf` (pinned `required_providers`), `README.md`. Modules never hardcode names, regions, or accounts; the `provider` is configured **once** in each env root and inherited.
+Every module follows the same contract — `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf` (pinned providers), `README.md` — and never hardcodes names/regions/accounts. The `aws` provider is configured once per env root and inherited by the modules.
 
 ---
 
 ## Quickstart
 
-> Prereqs: AWS CLI v2 with a `lab28` profile, Terraform ≥1.10, `psql`, and the pre-commit toolchain (`tflint`, `tfsec`/`checkov`, `terraform-docs`). Region: `eu-central-1`.
+> Prereqs: AWS CLI v2 (`lab28` profile), Terraform ≥1.10, `psql`, and the pre-commit toolchain. Region: `eu-central-1`.
 
 ```bash
 # 1. One-time: create the remote-state bucket (runs on local state)
-cd global/bootstrap
-terraform init && terraform apply
+cd global/bootstrap && terraform init && terraform apply
 #    → copy the `state_bucket` output into envs/class-a/backend.tf
 
-# 2. Stand up the MVP environment
+# 2. Stand up the MVP
 cd ../../envs/class-a
-terraform init          # configures the S3 backend + native lockfile
-terraform fmt && terraform validate
-terraform plan          # free — run it often
-terraform apply         # deploy ONLY when ready to test
+terraform init && terraform fmt && terraform validate
+terraform plan            # free — run often
+terraform apply           # deploy only when ready to test
 
 # 3. Run the pipeline
-aws stepfunctions start-execution \
-  --state-machine-arn <arn> \
+aws stepfunctions start-execution --state-machine-arn <arn> \
   --input '{"run_date":"2026-06-29"}'
 
-# 4. Verify, then destroy the same session
-aws s3 ls s3://<curated-bucket>/curated/ --recursive
-psql -h <rds-endpoint> -U admin -d driveflow -c 'select * from revenue_by_branch;'
-terraform destroy
-terraform state list    # must be EMPTY
+# 4. Verify, then always destroy
+terraform destroy && terraform state list   # must be EMPTY
 ```
 
 ---
@@ -165,31 +132,25 @@ terraform state list    # must be EMPTY
 
 | Resource | Setting | Cost at lab scale |
 |---|---|---|
-| S3 (4 zones) | `force_destroy=true`, few GB | ~$1/mo |
-| Glue Spark (clean, kpi) | 2× G.1X, autoscaling off, ~5-min runs | ~$7/mo (~100 runs) |
+| S3 (4 zones) | few GB, `force_destroy=true` | ~$1/mo |
+| Glue Spark (clean, kpi) | 2× G.1X, ~5-min runs | ~$7/mo |
 | Glue Python-shell (generate, extract, load) | 0.0625 DPU | cents |
 | Step Functions | standard workflow | ~$0 |
 | RDS Postgres | `db.t3.micro`, Free Tier, SG → single IP | $0 (free tier) |
-| Redshift Serverless *(toggle)* | 4-RPU, auto-pause, deleted after | ~$5 / session |
-| MWAA *(toggle)* | mw1.small — **deploy→test→destroy only** | ~$2–5 once |
+| Redshift Serverless *(toggle)* | auto-pause, deleted after | ~$5 / session |
+| MWAA *(toggle)* | deploy → test → **destroy** only | ~$2–5 once |
 
-**Typical month:** ~$10–15 routine, plus one MWAA and one Redshift exercise ≈ **~$20–25, comfortably under $50.**
+**Typical month ≈ $10–15 routine, ~$20–25 with a Redshift + MWAA exercise — comfortably under $50.**
 
 ---
 
-## Roadmap / build status
+## Build status
 
 - [x] **Foundation** — remote-state bootstrap (S3 + native lockfile), module scaffolding, pinned providers, class-a backend + provider config
 - [ ] **Foundation wiring** — `envs/class-a/main.tf` wiring `s3` / `iam_roles` / `budget`; prove `init → plan → apply → destroy`
-- [ ] **Class A (MVP)** — RDS ops source → watermarked delta extract → Spark clean/KPI → RDS `analytics` load, orchestrated by Step Functions; Iceberg + Athena option; BI dashboard
-- [ ] **Class B (Scale)** — EMR Serverless, Redshift Serverless, MWAA rehearsal, Databricks Delta comparison
+- [ ] **Class A (MVP)** — RDS source → watermarked extract → Spark clean/KPI → RDS load, orchestrated by Step Functions; Iceberg/Athena option; BI dashboard
+- [ ] **Class B (Scale)** — EMR Serverless, Redshift Serverless, MWAA rehearsal
 - [ ] **Class C (Production)** — `envs/prod`, Multi-AZ + DR drill, Secrets Manager, CloudWatch/SNS, CI plan-on-PR
 - [ ] **ML layer** *(optional)* — rental risk & failure prediction chained after the KPI stage
 
----
-
-## What this demonstrates
-
-Data modeling across a realistic operational schema · idempotent incremental ingestion with watermarking · Spark cleansing and validation at scale · enforced data-quality gates · serverless orchestration and scheduler comparison · a three-way warehouse trade-off study · least-privilege IAM · and — throughout — Terraform good enough to hand to a team: reusable modules, isolated remote state, pinned versions, and automated quality gates.
-
-<sub>Personal learning project. Fictional data (Faker-generated). Built to be reproducible for well under $50/month and destroyed after every session.</sub>
+<sub>Personal learning project · fictional Faker data · built to be reproducible for well under $50/month and destroyed after every session.</sub>
