@@ -29,3 +29,18 @@ module "budget" {
 
   email = var.budget_email
 }
+
+# ── Networking: default-VPC lookup + DB subnet group (free) ──
+module "vpc" {
+  source = "../../modules/vpc"
+}
+
+# ── Class A: RDS Postgres (gated; off by default) ──
+module "rds" {
+  source = "../../modules/rds"
+  count  = var.enable_rds ? 1 : 0
+
+  ip_cidr              = var.ip_cidr
+  vpc_id               = module.vpc.vpc_id
+  db_subnet_group_name = module.vpc.db_subnet_group_name
+}
