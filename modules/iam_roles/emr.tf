@@ -13,7 +13,7 @@ resource "aws_iam_role" "emr_service_role" {
       {
         Action    = "sts:AssumeRole"
         Effect    = "Allow"
-        Principal = { Service = "emr.amazonaws.com" }
+        Principal = { Service = "elasticmapreduce.amazonaws.com" }
       }
     ]
   })
