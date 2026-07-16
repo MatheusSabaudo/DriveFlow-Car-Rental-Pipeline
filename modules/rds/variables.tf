@@ -1,7 +1,7 @@
 variable "db_name" {
     description = "Name of the RDS database"
     type        = string
-    default     = "operational-db-driveflow"
+    default     = "operational_db_driveflow"
 }
 
 variable "db_username" {
