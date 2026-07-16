@@ -2,6 +2,8 @@ import random, sys, os
 from datetime import datetime, timedelta
 from faker import Faker
 import pandas as pd
+import psycopg2
+from psycopg2.extras import execute_values
 
 fake = Faker()
 out_root = os.environ.get("RAW_PATH", "data/raw")
@@ -61,13 +63,13 @@ def generate_vehicles(run_date, n=VEHICLES_NUM):
         rows.append(dict(
             vehicle_id = f"V{i:05d}",
             vin = fake.unique.bothify("??######??######").upper(),
+            make = random.choice(MAKES),
             model = random.choice(MODELS.get(random.choice(MAKES), ["Unknown"])),
             year = random.randint(MINIMUM_YEAR, MAX_YEAR),
             category = category,
             fuel_type = random.choice(FUELS) if category != "electric" else "electric",
             acquisition_date = (run_date - timedelta(days=random.randint(0, 3650))).strftime("%Y-%m-%d"),
-            status = random.choice(STATUS),
-            created_at = run_date.strftime("%Y-%m-%d %H:%M:%S"),
+            status = random.choice(STATUS)
         ))
     return pd.DataFrame(rows)
 
@@ -81,8 +83,7 @@ def generate_branches(run_date, n=BRANCHES_NUM):
             city = fake.city(),
             country = fake.country(),
             latitude = fake.latitude(),
-            longitude = fake.longitude(),
-            created_at = run_date.strftime("%Y-%m-%d %H:%M:%S")
+            longitude = fake.longitude()
         ))
     return pd.DataFrame(rows)
 
@@ -98,8 +99,7 @@ def generate_customers(run_date, n=CUSTOMERS_NUM):
             email = fake.unique.email(),
             license_number = fake.unique.bothify("??######").upper(),
             country = fake.country(),
-            signup_date = (run_date - timedelta(days=random.randint(0, 3650))).strftime("%Y-%m-%d"),
-            created_at = run_date.strftime("%Y-%m-%d %H:%M:%S")
+            signup_date = (run_date - timedelta(days=random.randint(0, 3650))).strftime("%Y-%m-%d")
         ))
     return pd.DataFrame(rows)
 
@@ -138,8 +138,7 @@ def generate_rentals(vehicles, customers, branches, run_date, n=500):
             end_ts = rental_end.strftime("%Y-%m-%d %H:%M:%S"),      
             daily_rate_eur = DAILY_RATE_EUR.get(vehicle["category"], 30),
             status = "completed" if rental_end < run_date else "ongoing",
-            total_cost_eur = total_cost,
-            created_at = run_date.strftime("%Y-%m-%d %H:%M:%S")
+            total_cost_eur = total_cost
         ))
     return pd.DataFrame(rows)
 
@@ -176,10 +175,36 @@ def generate_odometer_readings(vehicles, rentals, run_date):
                     rental_id = rental["rental_id"],
                     ts = ts.strftime("%Y-%m-%d %H:%M:%S"),          
                     odometer_reading_km = reading_km,
-                    fuel_level_percentage = fuel,
-                    created_at = run_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    fuel_level_percentage = fuel
                 ))
     return pd.DataFrame(rows)
+
+
+# Upsert helper function
+
+def upsert(conn, table, df, pk):
+
+    df = df.drop(columns=[c for c in ("created_at", "updated_at") if c in df.columns]) # Drop created_at and updated_at columns if they exist
+    df = df.where(pd.notnull(df), None) # Place NULLs where there are NaNs
+
+    cols = list(df.columns) # Get the list of columns in the DataFrame
+    update_cols = [c for c in cols if c not in pk] # Get the list of columns to update (all columns except the primary key columns)
+    set_clause = ", ".join([f"{c} = EXCLUDED.{c}" for c in update_cols]) # Create the SET clause for the ON CONFLICT statement
+
+    # Create the SQL statement for the upsert operation
+    sql = f"""
+        INSERT INTO {table} ({', '.join(cols)})
+        VALUES %s
+        ON CONFLICT ({', '.join(pk)}) DO UPDATE SET {set_clause};
+    """
+
+    rows = list(df.itertuples(index=False, name=None)) # Convert the DataFrame to a list of tuples for insertion
+    
+    # Execute the SQL statement using psycopg2's execute_values for efficient bulk insertion
+    with conn.cursor() as cur:
+        execute_values(cur, sql, rows)
+
+    print(f"Upserted {len(rows)} rows into {table}.")
 
 
 if __name__ == "__main__":
@@ -195,3 +220,20 @@ if __name__ == "__main__":
     rentals = generate_rentals(vehicles, customers, branches, run_date)
     odometer_readings = generate_odometer_readings(vehicles, rentals, run_date)
 
+    # Connect to the RDS PostgreSQL database and upsert the generated data
+
+    conn = psycopg2.connect()
+
+    try:
+        upsert(conn, "ops.vehicle", vehicles, ["vehicle_id"])
+        upsert(conn, "ops.branch", branches, ["branch_id"])
+        upsert(conn, "ops.customer", customers, ["customer_id"])
+        upsert(conn, "ops.rental", rentals, ["rental_id"])
+        upsert(conn, "ops.odometer", odometer_readings, ["reading_id"])
+
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
