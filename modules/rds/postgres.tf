@@ -23,8 +23,8 @@ resource "aws_db_instance" "postgres_rds_instance" {
   backup_window           = var.backup_time_window
   maintenance_window      = var.maintenance_time_window
 
-  db_subnet_group_name   = var.db_subnet_group_name
-  vpc_security_group_ids = [aws_security_group.rds.id]
+  db_subnet_group_name    = var.db_subnet_group_name
+  vpc_security_group_ids  = [aws_security_group.rds.id]
 
   iam_database_authentication_enabled = true
 
