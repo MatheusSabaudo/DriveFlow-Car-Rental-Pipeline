@@ -30,7 +30,7 @@ variable "budget_email" {
 variable "enable_rds" {
     description = "Whether to enable RDS resources"
     type        = bool
-    default     = false
+    default     = true
 }
 
 variable "enable_redshift" {
