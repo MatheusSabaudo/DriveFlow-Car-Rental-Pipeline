@@ -10,7 +10,7 @@ out_root = os.environ.get("RAW_PATH", "data/raw")
 
 # Constants
 
-CATEGORIES = ["economy", "SUV", "luxury", "sports", "sedan", "truck", "hybrid", "electric"]
+CATEGORIES = ["economy", "SUV", "luxury", "sports", "sedan", "hybrid", "electric"]
 FUELS = ["gasoline", "diesel", "electric", "hybrid"]
 STATUS = ["available", "sold", "maintenance", "reserved", "not available"]
 
@@ -71,12 +71,13 @@ class Vehicle:
         for i in range(n):
 
             category = random.choice(CATEGORIES)
+            make = random.choice(MAKES)
 
             rows.append(dict(
                 vehicle_id = f"V{i:05d}",
                 vin = fake.unique.bothify("??######??######").upper(),
-                make = random.choice(MAKES),
-                model = random.choice(MODELS.get(random.choice(MAKES), ["Unknown"])),
+                make = make,
+                model = random.choice(MODELS[make]),
                 year = random.randint(MINIMUM_YEAR, MAX_YEAR),
                 category = category,
                 fuel_type = random.choice(FUELS) if category != "electric" else "electric",
@@ -268,8 +269,13 @@ if __name__ == "__main__":
     rentals = Rental.generate_rentals(vehicles, customers, branches, run_date)
     odometer_readings = OdometerReading.generate_odometer_readings(vehicles, rentals, run_date)
 
+    # quick debugging output to verify the generated data
     print(f"Generated {len(vehicles)} vehicles, {len(branches)} branches, {len(customers)} customers, {len(rentals)} rentals, and {len(odometer_readings)} odometer readings.")
-
+    
+    print(f"\nSample vehicle data: \n{vehicles.iloc[0].to_dict()}")
+    
+    print(f"\nModel for first vehicle is valid: {vehicles.iloc[0]['model'] in MODELS[vehicles.iloc[0]['make']]}\n MODEL: {vehicles.iloc[0]['model']} \n MAKE: {vehicles.iloc[0]['make']}")
+    
     # Connect to the RDS PostgreSQL database and upsert the generated data
 
     # conn = psycopg2.connect()
