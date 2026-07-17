@@ -256,7 +256,7 @@ def upsert(conn, table, df, pk):
 
 
 if __name__ == "__main__":
-    run_date_str = sys.argv[1] if len(sys.argv) > 1 else datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    run_date_str = sys.argv[1] if len(sys.argv) > 1 else datetime.now().strftime("%Y-%m-%d")
     run_date = datetime.strptime(run_date_str, "%Y-%m-%d")
 
     random.seed(run_date_str)
