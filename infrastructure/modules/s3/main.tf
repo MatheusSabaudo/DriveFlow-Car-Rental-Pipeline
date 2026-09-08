@@ -5,11 +5,11 @@ resource "aws_s3_bucket" "bronze_layer_bucket" {
   force_destroy = true
 
   tags = {
-    Name      = "Bucket Business Ready"
+    Name      = "Bronze Layer Bucket"
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "s3_bucket_ready_public_access_block" {
+resource "aws_s3_bucket_public_access_block" "bronze_layer_bucket_public_access_block" {
   bucket                  = aws_s3_bucket.bronze_layer_bucket.id
   block_public_acls       = true
   block_public_policy     = true
@@ -17,12 +17,12 @@ resource "aws_s3_bucket_public_access_block" "s3_bucket_ready_public_access_bloc
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_versioning" "s3_bucket_ready_versioning" {
+resource "aws_s3_bucket_versioning" "bronze_layer_bucket_versioning" {
   bucket = aws_s3_bucket.bronze_layer_bucket.id
   versioning_configuration { status = "Enabled" }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "s3_bucket_ready_encryption" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "bronze_layer_bucket_encryption" {
   bucket = aws_s3_bucket.bronze_layer_bucket.id
   rule {
     apply_server_side_encryption_by_default { sse_algorithm = "AES256" }
@@ -41,8 +41,8 @@ resource "aws_s3_bucket_policy" "s3_bucket_ready_tls_enforcement" {
         Principal = "*"
         Action    = "s3:*"
         Resource = [
-          "${aws_s3_bucket.bronze-layer-bucket.arn}/*",
-          aws_s3_bucket.bronze-layer-bucket.arn
+          "${aws_s3_bucket.bronze_layer_bucket.arn}/*",
+          aws_s3_bucket.bronze_layer_bucket.arn
         ]
         Condition = {
           Bool = { "aws:SecureTransport" = "false" }
@@ -52,8 +52,8 @@ resource "aws_s3_bucket_policy" "s3_bucket_ready_tls_enforcement" {
   })
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "s3_bucket_ready_lifecycle" {
-  depends_on = [aws_s3_bucket_versioning.s3_bucket_ready_versioning]
+resource "aws_s3_bucket_lifecycle_configuration" "bronze_layer_bucket_lifecycle" {
+  depends_on = [aws_s3_bucket_versioning.bronze_layer_bucket_versioning]
   bucket     = aws_s3_bucket.bronze_layer_bucket.id
 
   rule {
