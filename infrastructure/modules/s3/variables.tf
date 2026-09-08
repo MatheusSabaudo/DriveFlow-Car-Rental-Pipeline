@@ -1,19 +1,19 @@
-variable "raw_bucket_name" {
-    description = "Name of the raw S3 bucket"
+variable "bronze_layer_bucket_name" {
+    description = "Name of the bronze layer S3 bucket"
     type        = string
-    default     = "driveflow-raw"
+    default     = "driveflow-bronze"
 }
 
-variable "cleansed_bucket_name" {
-    description = "Name of the cleansed S3 bucket"
+variable "silver_layer_bucket_name" {
+    description = "Name of the silver layer S3 bucket"
     type        = string
-    default     = "driveflow-cleansed"
+    default     = "driveflow-silver"
 }
 
-variable "curated_bucket_name" {
-    description = "Name of the curated S3 bucket"
+variable "gold_layer_bucket_name" {
+    description = "Name of the gold layer S3 bucket"
     type        = string
-    default     = "driveflow-curated"
+    default     = "driveflow-gold"
 }
 
 variable "scripts_bucket_name" {
