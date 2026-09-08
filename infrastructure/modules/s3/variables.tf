@@ -16,8 +16,14 @@ variable "gold_layer_bucket_name" {
     default     = "driveflow-gold"
 }
 
-variable "scripts_bucket_name" {
-    description = "Name of the scripts S3 bucket"
+variable "glue_scripts_bucket_name" {
+    description = "Name of the Glue scripts S3 bucket"
     type        = string
     default     = "driveflow-scripts"
+}
+
+variable "glue_temp_bucket_name" {
+    description = "Name of the Glue temp S3 bucket"
+    type        = string
+    default     = "driveflow-temp"
 }
