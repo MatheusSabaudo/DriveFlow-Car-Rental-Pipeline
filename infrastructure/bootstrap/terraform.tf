@@ -1,44 +1,49 @@
-# Business-ready (Gold) bucket
-resource "aws_s3_bucket" "s3-bucket-ready" {
-  bucket        = var.terraform_state
-  force_destroy = false
-
-  tags = {
-    Name      = "Terraform State Bucket"
-  }
-}
-
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.11"
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "6.47.0"
+      version = "~> 5.0"
     }
-  }
-
-  backend "s3" {
-    bucket       = "driveflow-terraform-state"
-    key          = "infrastructure/terraform.tfstate"
-    region       = "eu-central-1"
-    profile      = "lab28"
-    encrypt      = true
   }
 }
 
 provider "aws" {
-  region  = var.aws_region
-  profile = "lab28"
+  region = "eu-central-1"
+}
 
-  default_tags {
-    tags = {
-      Project     = "solar-pipeline"
-      Service     = "solar-pipeline"
-      Environment = var.environment
-      ManagedBy   = "Terraform"
-      Team        = "data-engineering"
-      Repository  = "MatheusSabaudoCorley/DriveFlow-Car-Rental-Pipeline"
+variable "bucket_name" {
+  description = "Name of the S3 bucket for Terraform remote state"
+  type        = string
+  default     = "driveflow-terraform-state"
+}
+
+resource "aws_s3_bucket" "tf_state" {
+  bucket        = var.bucket_name
+  force_destroy = false
+}
+
+resource "aws_s3_bucket_versioning" "tf_state" {
+  bucket = aws_s3_bucket.tf_state.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "tf_state" {
+  bucket = aws_s3_bucket.tf_state.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
+}
+
+resource "aws_s3_bucket_public_access_block" "tf_state" {
+  bucket                  = aws_s3_bucket.tf_state.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
