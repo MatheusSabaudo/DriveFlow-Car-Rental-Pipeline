@@ -1,42 +1,51 @@
-output "raw_bucket_name" {
-  description = "Name of the raw bucket"
-  value       = aws_s3_bucket.bucket_raw.bucket
+output "bronze_bucket_name" {
+  description = "Name of the bronze layer bucket"
+  value       = aws_s3_bucket.bronze_layer_bucket.bucket
 }
 
-output "raw_bucket_arn" {
-  value = aws_s3_bucket.bucket_raw.arn
+output "bronze_bucket_arn" {
+  value = aws_s3_bucket.bronze_layer_bucket.arn
 }
 
-output "cleansed_bucket_name" {
-  value = aws_s3_bucket.bucket_cleansed.bucket
+output "silver_bucket_name" {
+  value = aws_s3_bucket.silver_layer_bucket.bucket
 }
 
-output "cleansed_bucket_arn" {
-  value = aws_s3_bucket.bucket_cleansed.arn
+output "silver_bucket_arn" {
+  value = aws_s3_bucket.silver_layer_bucket.arn
 }
 
-output "curated_bucket_name" {
-  value = aws_s3_bucket.bucket_curated.bucket
+output "gold_bucket_name" {
+  value = aws_s3_bucket.gold_layer_bucket.bucket
 }
 
-output "curated_bucket_arn" {
-  value = aws_s3_bucket.bucket_curated.arn
+output "gold_bucket_arn" {
+  value = aws_s3_bucket.gold_layer_bucket.arn
 }
 
-output "scripts_bucket_name" {
-  value = aws_s3_bucket.bucket_scripts.bucket
+output "glue_scripts_bucket_name" {
+  value = aws_s3_bucket.glue_scripts_bucket.bucket
 }
 
-output "scripts_bucket_arn" {
-  value = aws_s3_bucket.bucket_scripts.arn
+output "glue_scripts_bucket_arn" {
+  value = aws_s3_bucket.glue_scripts_bucket.arn
+}
+
+output "glue_temp_bucket_name" {
+  value = aws_s3_bucket.glue_temp_bucket.bucket
+}
+
+output "glue_temp_bucket_arn" {
+  value = aws_s3_bucket.glue_temp_bucket.arn
 }
 
 output "bucket_arns" {
   description = "All data-lake bucket ARNs (for IAM least-privilege policies)"
   value = [
-    aws_s3_bucket.bucket_raw.arn,
-    aws_s3_bucket.bucket_cleansed.arn,
-    aws_s3_bucket.bucket_curated.arn,
-    aws_s3_bucket.bucket_scripts.arn,
+    aws_s3_bucket.bronze_layer_bucket.arn,
+    aws_s3_bucket.silver_layer_bucket.arn,
+    aws_s3_bucket.gold_layer_bucket.arn,
+    aws_s3_bucket.glue_scripts_bucket.arn,
+    aws_s3_bucket.glue_temp_bucket.arn,
   ]
 }
