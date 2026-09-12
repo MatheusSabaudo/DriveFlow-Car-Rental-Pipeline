@@ -4,7 +4,7 @@ resource "aws_iam_role" "step_functions_role" {
   name = "step-functions-execution-role"
 
   tags = {
-    Name      = "Step Functions Execution Role"
+    Name = "Step Functions Execution Role"
   }
 
   assume_role_policy = jsonencode({

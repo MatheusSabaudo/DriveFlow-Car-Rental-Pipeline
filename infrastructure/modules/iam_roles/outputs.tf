@@ -21,3 +21,11 @@ output "emr_role_arn" {
 output "emr_role_name" {
   value = aws_iam_role.emr_service_role.name
 }
+
+output "mwaa_role_arn" {
+  value = aws_iam_role.mwaa_execution_role.arn
+}
+
+output "mwaa_role_name" {
+  value = aws_iam_role.mwaa_execution_role.name
+}

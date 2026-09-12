@@ -4,7 +4,7 @@ resource "aws_iam_role" "glue_service_role" {
   name = "glue-service-role"
 
   tags = {
-    Name      = "Glue Service Role"
+    Name = "Glue Service Role"
   }
 
   assume_role_policy = jsonencode({

@@ -4,7 +4,7 @@ resource "aws_iam_role" "emr_service_role" {
   name = "emr-service-role"
 
   tags = {
-    Name      = "EMR Service Role"
+    Name = "EMR Service Role"
   }
 
   assume_role_policy = jsonencode({
