@@ -1,0 +1,4 @@
+# DriveFlow generators — evaluation dependencies
+# In Glue Python-shell these map to --additional-python-modules
+Faker>=25.0
+faker-vehicle>=0.2.0
