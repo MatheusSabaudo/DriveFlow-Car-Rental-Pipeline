@@ -1,0 +1,209 @@
+<mxfile host="app.diagrams.net" agent="Claude" type="device">
+  <diagram name="DriveFlow — Arch" id="driveflow-arch">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1300" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="DriveFlow — Car Rental Data Platform · AWS Architecture" style="text;html=1;align=left;verticalAlign=middle;fontSize=26;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="40" y="8" width="1300" height="34" as="geometry" />
+        </mxCell>
+
+        <!-- ============ LANE: Orchestration & Governance ============ -->
+        <mxCell id="L_orch" value="" style="swimlane;startSize=0;html=1;fillColor=#FBFBFD;strokeColor=#AEB6C2;swimlaneFillColor=#FBFBFD;" vertex="1" parent="1">
+          <mxGeometry x="40" y="52" width="1580" height="176" as="geometry" />
+        </mxCell>
+        <mxCell id="t_orch" value="Orchestration &amp; Governance — control plane" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="L_orch">
+          <mxGeometry x="14" y="8" width="600" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="mwaa" value="driveflow-&amp;lt;env&amp;gt;-mwaa&lt;br&gt;Airflow orchestrator" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.managed_workflows_for_apache_airflow;" vertex="1" parent="L_orch">
+          <mxGeometry x="80" y="58" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="lakef" value="AWS Lake Formation&lt;br&gt;LF-Tags / TBAC" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lake_formation;" vertex="1" parent="L_orch">
+          <mxGeometry x="480" y="58" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="catalog" value="driveflow_&amp;lt;env&amp;gt;_catalog&lt;br&gt;Glue Data Catalog" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.glue_data_catalog;" vertex="1" parent="L_orch">
+          <mxGeometry x="900" y="58" width="72" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="iam" value="IAM roles&lt;br&gt;Glue · EMR · MWAA (least-privilege)" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.identity_and_access_management_iam;" vertex="1" parent="L_orch">
+          <mxGeometry x="1300" y="58" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <!-- ============ LANE: Ingestion ============ -->
+        <mxCell id="L_ing" value="" style="swimlane;startSize=0;html=1;fillColor=#FBFBFD;strokeColor=#AEB6C2;swimlaneFillColor=#FBFBFD;" vertex="1" parent="1">
+          <mxGeometry x="40" y="260" width="360" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="t_ing" value="1 · Ingestion — operational source" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="L_ing">
+          <mxGeometry x="12" y="8" width="340" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="glue_gen" value="driveflow-&amp;lt;env&amp;gt;-job-generate&lt;br&gt;Glue Python-shell · Faker" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.glue;" vertex="1" parent="L_ing">
+          <mxGeometry x="141" y="56" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="rds_ops" value="driveflow-&amp;lt;env&amp;gt;-rds&lt;br&gt;ops schema + watermark" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;shape=mxgraph.aws3.rds;fillColor=#2E73B8;gradientColor=none;fontColor=#232F3E;" vertex="1" parent="L_ing">
+          <mxGeometry x="144" y="216" width="72" height="81" as="geometry" />
+        </mxCell>
+        <mxCell id="extract" value="driveflow-&amp;lt;env&amp;gt;-job-extract-delta&lt;br&gt;Glue Python-shell · psycopg2" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.glue;" vertex="1" parent="L_ing">
+          <mxGeometry x="141" y="392" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <!-- ============ LANE: Data Lake & Processing ============ -->
+        <mxCell id="L_lake" value="" style="swimlane;startSize=0;html=1;fillColor=#FBFBFD;strokeColor=#AEB6C2;swimlaneFillColor=#FBFBFD;" vertex="1" parent="1">
+          <mxGeometry x="420" y="260" width="560" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="t_lake" value="2 · S3 Data Lake &amp; Processing — Medallion (RAW → CLEANSED → CURATED)" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="L_lake">
+          <mxGeometry x="12" y="8" width="540" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="raw" value="driveflow-&amp;lt;env&amp;gt;-bronze&lt;br&gt;S3 RAW" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="L_lake">
+          <mxGeometry x="60" y="70" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="emr_clean" value="driveflow-&amp;lt;env&amp;gt;-emr-clean&lt;br&gt;EMR Serverless · Spark" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.emr;" vertex="1" parent="L_lake">
+          <mxGeometry x="300" y="70" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="cleansed" value="driveflow-&amp;lt;env&amp;gt;-silver&lt;br&gt;S3 CLEANSED" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="L_lake">
+          <mxGeometry x="60" y="230" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="emr_kpi" value="driveflow-&amp;lt;env&amp;gt;-emr-kpi&lt;br&gt;EMR Serverless · Spark" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.emr;" vertex="1" parent="L_lake">
+          <mxGeometry x="300" y="230" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="curated" value="driveflow-&amp;lt;env&amp;gt;-gold&lt;br&gt;S3 CURATED" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="L_lake">
+          <mxGeometry x="60" y="390" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="scripts" value="driveflow-&amp;lt;env&amp;gt;-scripts" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="L_lake">
+          <mxGeometry x="320" y="398" width="58" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="temp" value="driveflow-&amp;lt;env&amp;gt;-temp" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="L_lake">
+          <mxGeometry x="440" y="398" width="58" height="58" as="geometry" />
+        </mxCell>
+
+        <!-- ============ LANE: Warehouses ============ -->
+        <mxCell id="L_wh" value="" style="swimlane;startSize=0;html=1;fillColor=#FBFBFD;strokeColor=#AEB6C2;swimlaneFillColor=#FBFBFD;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="260" width="380" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="t_wh" value="3 · Analytics Warehouses" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="L_wh">
+          <mxGeometry x="12" y="8" width="340" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="load_wh" value="driveflow-&amp;lt;env&amp;gt;-job-load-warehouse&lt;br&gt;Glue Python-shell · psycopg2" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.glue;" vertex="1" parent="L_wh">
+          <mxGeometry x="151" y="56" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="rds_an" value="driveflow-&amp;lt;env&amp;gt;-rds&lt;br&gt;analytics schema" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;shape=mxgraph.aws3.rds;fillColor=#2E73B8;gradientColor=none;fontColor=#232F3E;" vertex="1" parent="L_wh">
+          <mxGeometry x="60" y="214" width="72" height="81" as="geometry" />
+        </mxCell>
+        <mxCell id="redshift" value="driveflow-&amp;lt;env&amp;gt;-redshift&lt;br&gt;Serverless (COPY)" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.redshift;" vertex="1" parent="L_wh">
+          <mxGeometry x="240" y="214" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="athena" value="Athena + Apache Iceberg&lt;br&gt;open lakehouse (MERGE / time-travel)" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.athena;" vertex="1" parent="L_wh">
+          <mxGeometry x="151" y="382" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <!-- ============ LANE: BI ============ -->
+        <mxCell id="L_bi" value="" style="swimlane;startSize=0;html=1;fillColor=#FBFBFD;strokeColor=#AEB6C2;swimlaneFillColor=#FBFBFD;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="260" width="220" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="t_bi" value="4 · BI" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="L_bi">
+          <mxGeometry x="12" y="8" width="180" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="quicksight" value="Amazon QuickSight&lt;br&gt;dashboards" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.quicksight;" vertex="1" parent="L_bi">
+          <mxGeometry x="71" y="222" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <!-- ============ LANE: Monitoring ============ -->
+        <mxCell id="L_mon" value="" style="swimlane;startSize=0;html=1;fillColor=#FBFBFD;strokeColor=#AEB6C2;swimlaneFillColor=#FBFBFD;" vertex="1" parent="1">
+          <mxGeometry x="40" y="812" width="560" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="t_mon" value="Monitoring &amp; Cost" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="L_mon">
+          <mxGeometry x="12" y="8" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="budgets" value="driveflow-&amp;lt;env&amp;gt;-budget&lt;br&gt;$50 · alerts 20/35/45" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.budgets;" vertex="1" parent="L_mon">
+          <mxGeometry x="60" y="52" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="sns" value="driveflow-&amp;lt;env&amp;gt;-alerts&lt;br&gt;Amazon SNS" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.simple_notification_service;" vertex="1" parent="L_mon">
+          <mxGeometry x="250" y="52" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="email" value="&#9993; email alerts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#E7157B;fontSize=11;fontColor=#232F3E;" vertex="1" parent="L_mon">
+          <mxGeometry x="410" y="66" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============ LANE: GPS extension (planned) ============ -->
+        <mxCell id="L_gps" value="GPS &amp; Fleet Tracking — planned phase" style="swimlane;whiteSpace=wrap;html=1;dashed=1;startSize=30;fontSize=14;fontStyle=1;fontColor=#555555;fillColor=#FCFCFC;strokeColor=#9AA3AF;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1006" width="900" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="lambda" value="simulate-gps&lt;br&gt;AWS Lambda" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="L_gps">
+          <mxGeometry x="40" y="60" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="iot" value="IoT Core / Kinesis&lt;br&gt;ingestion" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.iot_core;" vertex="1" parent="L_gps">
+          <mxGeometry x="210" y="60" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="dynamo" value="driveflow-&amp;lt;env&amp;gt;-table-locations&lt;br&gt;hot table" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;shape=mxgraph.aws3.dynamo_db;fillColor=#2E73B8;gradientColor=none;fontColor=#232F3E;" vertex="1" parent="L_gps">
+          <mxGeometry x="380" y="58" width="66" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="apigw" value="driveflow-&amp;lt;env&amp;gt;-api&lt;br&gt;GET /vehicles/{id}/location" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.api_gateway;" vertex="1" parent="L_gps">
+          <mxGeometry x="560" y="60" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gpsnote" value="Historical pings also land in S3 RAW → Iceberg GEOMETRY column (Glue 6.0 / Iceberg v3) for ST_Intersects geofencing." style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#4B6116;" vertex="1" parent="L_gps">
+          <mxGeometry x="690" y="55" width="190" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ============ LANE: ML extension (planned) ============ -->
+        <mxCell id="L_ml" value="ML Risk &amp; Failure Prediction — planned phase (chained after KPI)" style="swimlane;whiteSpace=wrap;html=1;dashed=1;startSize=30;fontSize=14;fontStyle=1;fontColor=#555555;fillColor=#FCFCFC;strokeColor=#9AA3AF;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="970" y="1006" width="650" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="features" value="features.py&lt;br&gt;EMR Serverless" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.emr;" vertex="1" parent="L_ml">
+          <mxGeometry x="40" y="60" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="train" value="train.py&lt;br&gt;XGBoost · EMR" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.emr;" vertex="1" parent="L_ml">
+          <mxGeometry x="210" y="60" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="sagemaker" value="SageMaker&lt;br&gt;batch-transform" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#01A88D;gradientDirection=north;fillColor=#116D5B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sagemaker;" vertex="1" parent="L_ml">
+          <mxGeometry x="380" y="60" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="score" value="score.py&lt;br&gt;→ CURATED / analytics" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.emr;" vertex="1" parent="L_ml">
+          <mxGeometry x="550" y="60" width="70" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="Legend:  ──▶ data flow    ┈┈▶ orchestration / governance    dashed lane = planned extension&#10;Toggle-gated &amp; ephemeral (MWAA · EMR · Redshift): deploy → test → destroy each session · budget &lt; $50/mo&#10;No-NAT: Glue Python-shell + psycopg2 reaches the public, IP-locked RDS directly" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#444444;fillColor=#FBFBFB;strokeColor=#CCCCCC;rounded=1;spacingLeft=8;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="812" width="700" height="96" as="geometry" />
+        </mxCell>
+
+        <!-- ================= EDGES (data flow) ================= -->
+        <mxCell id="e_gen_rds" value="writes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;" edge="1" parent="1" source="glue_gen" target="rds_ops"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_rds_ext" value="updated_at &gt; watermark" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;" edge="1" parent="1" source="rds_ops" target="extract"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_ext_raw" value="Parquet" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;" edge="1" parent="1" source="extract" target="raw"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_raw_clean" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="raw" target="emr_clean"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_clean_cln" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="emr_clean" target="cleansed"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_cln_kpi" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="cleansed" target="emr_kpi"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_kpi_cur" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="emr_kpi" target="curated"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_cur_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="curated" target="load_wh"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_load_an" value="delete-then-insert" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;" edge="1" parent="1" source="load_wh" target="rds_an"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_cur_rs" value="COPY FROM S3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;" edge="1" parent="1" source="curated" target="redshift"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_cur_ath" value="Iceberg / MERGE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;" edge="1" parent="1" source="curated" target="athena"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_an_qs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="rds_an" target="quicksight"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_rs_qs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="redshift" target="quicksight"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_ath_qs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="athena" target="quicksight"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_bud_sns" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="budgets" target="sns"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_sns_mail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="sns" target="email"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- GPS flow -->
+        <mxCell id="e_l_iot" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="lambda" target="iot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_iot_dyn" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iot" target="dynamo"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_dyn_api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dynamo" target="apigw"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ML flow -->
+        <mxCell id="e_feat_train" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="features" target="train"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_train_sm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="train" target="sagemaker"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_sm_score" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="sagemaker" target="score"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ================= EDGES (control plane, dashed) ================= -->
+        <mxCell id="e_mwaa_gen" value="orchestrates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#8C4FFF;fontColor=#8C4FFF;fontSize=9;endArrow=open;" edge="1" parent="1" source="mwaa" target="glue_gen"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_mwaa_clean" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#8C4FFF;endArrow=open;" edge="1" parent="1" source="mwaa" target="emr_clean"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_mwaa_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#8C4FFF;endArrow=open;" edge="1" parent="1" source="mwaa" target="load_wh"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_lf_cat" value="LF-Tags" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#C7511F;fontColor=#C7511F;fontSize=9;endArrow=open;" edge="1" parent="1" source="lakef" target="catalog"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_lf_cur" value="governs lake" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#C7511F;fontColor=#C7511F;fontSize=9;endArrow=open;" edge="1" parent="1" source="lakef" target="curated"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_cat_ath" value="metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#C7511F;fontColor=#C7511F;fontSize=9;endArrow=open;" edge="1" parent="1" source="catalog" target="athena"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_cur_feat" value="after KPI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#01A88D;fontColor=#0A6B5B;fontSize=9;endArrow=open;" edge="1" parent="1" source="curated" target="features"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
