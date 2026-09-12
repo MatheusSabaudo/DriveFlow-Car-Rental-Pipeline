@@ -12,6 +12,10 @@ locals {
 
 # --- Shared resources ---
 
+module "s3" {
+  source      = "./modules/s3"
+}
+
 module "sns" {
   source      = "./modules/sns"
   topic_name  = "${local.name_prefix}-alerts"
