@@ -3,7 +3,7 @@ STATE_KEY       ?= infrastructure/terraform.tfstate
 AWS_REGION      ?= eu-central-1
 SNS_ALERT_EMAIL ?=
 
-.PHONY: init apply deploy
+.PHONY: init apply deploy destroy
 
 init:
 	terraform init \
@@ -16,3 +16,6 @@ apply:
 	terraform apply -var="sns_alert_email=$(SNS_ALERT_EMAIL)"
 
 deploy: init apply
+
+destroy:
+	terraform destroy -var="sns_alert_email=$(SNS_ALERT_EMAIL)"
