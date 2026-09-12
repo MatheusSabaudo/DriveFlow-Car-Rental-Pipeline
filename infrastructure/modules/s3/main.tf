@@ -114,7 +114,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "silver_layer_buck
   }
 }
 
-resource "aws_s3_bucket_policy" "s3_bucket_ready_tls_enforcement" {
+resource "aws_s3_bucket_policy" "s3_bucket_silver_tls_enforcement" {
   bucket = aws_s3_bucket.silver_layer_bucket.id
 
   policy = jsonencode({
@@ -198,7 +198,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "gold_layer_bucket
   }
 }
 
-resource "aws_s3_bucket_policy" "s3_bucket_ready_tls_enforcement" {
+resource "aws_s3_bucket_policy" "gold_layer_bucket_tls_enforcement" {
   bucket = aws_s3_bucket.gold_layer_bucket.id
 
   policy = jsonencode({
@@ -315,11 +315,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "glue_scripts_lifecycle" {
     filter {}
 
     abort_incomplete_multipart_upload {
-      days_after_initiation = 3
+      days_after_initiation = 7
     }
 
     noncurrent_version_expiration {
-      noncurrent_days = 30
+      noncurrent_days = 90
     }
 
     noncurrent_version_transition {
