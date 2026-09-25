@@ -22,3 +22,13 @@ output "status" {
   description = "Lifecycle status of the MWAA environment."
   value       = aws_mwaa_environment.this.status
 }
+
+output "execution_role_arn" {
+  description = "ARN of the MWAA execution role."
+  value       = var.execution_role_arn
+}
+
+output "source_bucket_arn" {
+  description = "ARN of the MWAA source bucket."
+  value       = var.source_bucket_arn
+}

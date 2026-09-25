@@ -409,3 +409,57 @@ resource "aws_s3_bucket_lifecycle_configuration" "glue_temp_lifecycle" {
     status = "Enabled"
   }
 }
+
+# MWAA source bucket
+
+resource "aws_s3_bucket" "mwaa_source_bucket" {
+  bucket        = var.mwaa_source_bucket_name
+  force_destroy = true
+
+  tags = {
+    Name      = "Bucket MWAA Source"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "mwaa_source_public_access_block" {
+  bucket                  = aws_s3_bucket.mwaa_source_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_versioning" "mwaa_source_versioning" {
+  bucket = aws_s3_bucket.mwaa_source_bucket.id
+  versioning_configuration { status = "Enabled" }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "mwaa_source_encryption" {
+  bucket = aws_s3_bucket.mwaa_source_bucket.id
+  rule {
+    apply_server_side_encryption_by_default { sse_algorithm = "AES256" }
+  }
+}
+
+resource "aws_s3_bucket_policy" "mwaa_source_tls_enforcement" {
+  bucket = aws_s3_bucket.mwaa_source_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "EnforceTLS"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          "${aws_s3_bucket.mwaa_source_bucket.arn}/*",
+          aws_s3_bucket.mwaa_source_bucket.arn
+        ]
+        Condition = {
+          Bool = { "aws:SecureTransport" = "false" }
+        }
+      }
+    ]
+  })
+}

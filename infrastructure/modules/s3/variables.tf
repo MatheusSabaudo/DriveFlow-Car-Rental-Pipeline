@@ -27,3 +27,9 @@ variable "glue_temp_bucket_name" {
     type        = string
     default     = "driveflow-temp"
 }
+
+variable "mwaa_source_bucket_name" {
+    description = "Name of the MWAA source S3 bucket"
+    type        = string
+    default     = "driveflow-mwaa-source"
+}

@@ -39,6 +39,14 @@ output "glue_temp_bucket_arn" {
   value = aws_s3_bucket.glue_temp_bucket.arn
 }
 
+output "mwaa_source_bucket_name" {
+  value = aws_s3_bucket.mwaa_source_bucket.bucket
+}
+
+output "mwaa_source_bucket_arn" {
+  value = aws_s3_bucket.mwaa_source_bucket.arn
+}
+
 output "bucket_arns" {
   description = "All data-lake bucket ARNs (for IAM least-privilege policies)"
   value = [
