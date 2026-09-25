@@ -12,8 +12,27 @@ locals {
 
 # --- Shared resources ---
 
+module "vpc" {
+  source = "./modules/vpc"
+}
+
+module "iam_roles" {
+  source                 = "./modules/iam_roles"
+  mwaa_environment_name  = local.name_prefix
+  mwaa_source_bucket_arn = module.s3.mwaa_source_bucket_arn
+}
+
 module "s3" {
   source      = "./modules/s3"
+}
+
+module "mwaa" {
+  source = "./modules/mwaa"
+  name = local.name_prefix
+  vpc_id = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnet_ids
+  execution_role_arn = module.iam_roles.mwaa_role_arn
+  source_bucket_arn = module.s3.mwaa_source_bucket_arn
 }
 
 module "sns" {

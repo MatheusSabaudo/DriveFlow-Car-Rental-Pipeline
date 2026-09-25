@@ -1,8 +1,4 @@
-# MWAA execution role — assumed by the Airflow environment (scheduler, workers,
-# webserver). Scoped to exactly what MWAA needs to operate: read the DAG bucket,
-# write its own log group, publish its metrics, and use its Celery SQS queue.
-# Task-specific permissions (e.g. glue:StartJobRun, EMR) are added separately
-# when those operators exist — kept out of here to preserve least privilege.
+# MWAA execution role
 
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
